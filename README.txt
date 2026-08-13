@@ -1,0 +1,1 @@
+Open index.html in a browser. Upload index.html, style.css and script.js to a GitHub repository to publish with GitHub Pages.
