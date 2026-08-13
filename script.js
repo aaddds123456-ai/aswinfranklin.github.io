@@ -1,348 +1,485 @@
-/* ===============================
-   PORTFOLIO ANIMATION SCRIPT
-================================ */
+/* =========================================
+   PREMIUM PORTFOLIO JAVASCRIPT
+========================================= */
 
-// Mobile Menu
+
+/* =========================
+   MOBILE MENU
+========================= */
+
 const menu = document.getElementById("menu");
 const nav = document.querySelector("nav");
 
-menu.addEventListener("click", () => {
+if (menu && nav) {
+
+  menu.addEventListener("click", () => {
     nav.classList.toggle("active");
-});
+  });
 
-// Close mobile menu when clicking a link
-document.querySelectorAll("nav a").forEach(link => {
+  document.querySelectorAll("nav a").forEach(link => {
+
     link.addEventListener("click", () => {
-        nav.classList.remove("active");
+      nav.classList.remove("active");
     });
+
+  });
+
+}
+
+
+/* =========================
+   SMOOTH SCROLL
+========================= */
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+
+  anchor.addEventListener("click", function(e) {
+
+    const target = document.querySelector(
+      this.getAttribute("href")
+    );
+
+    if (target) {
+
+      e.preventDefault();
+
+      target.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    }
+
+  });
+
 });
 
 
-/* ===============================
-   SCROLL REVEAL ANIMATION
-================================ */
+/* =========================
+   SCROLL REVEAL
+========================= */
 
 const revealElements = document.querySelectorAll(
-    "section, .card, article, .project, .certs > div, .pills i"
+  "section, .card, .project, .certs > div, .skills article"
 );
 
 const revealObserver = new IntersectionObserver(
-    (entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("show");
-            }
-        });
-    },
-    {
-        threshold: 0.12
-    }
+  (entries) => {
+
+    entries.forEach(entry => {
+
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+        revealObserver.unobserve(entry.target);
+      }
+
+    });
+
+  },
+  {
+    threshold:0.12
+  }
 );
 
-revealElements.forEach((element) => {
-    element.classList.add("reveal");
-    revealObserver.observe(element);
+revealElements.forEach(element => {
+
+  element.classList.add("reveal");
+  revealObserver.observe(element);
+
 });
 
 
-/* ===============================
+/* =========================
    TYPING EFFECT
-================================ */
-
-const roles = [
-    "Front-End Developer",
-    "Web Developer",
-    "Software Developer",
-    "Creative Coder"
-];
+========================= */
 
 const roleElement = document.querySelector(".hero h2");
 
+const roles = [
+  "Front-End Developer",
+  "Web Developer",
+  "Software Developer",
+  "Creative Coder"
+];
+
 let roleIndex = 0;
-let characterIndex = 0;
+let charIndex = 0;
 let deleting = false;
 
-function typingEffect() {
+function typeRole() {
 
-    if (!roleElement) return;
+  if (!roleElement) return;
 
-    const currentRole = roles[roleIndex];
+  const currentRole = roles[roleIndex];
 
-    if (!deleting) {
+  if (!deleting) {
 
-        roleElement.textContent =
-            currentRole.substring(0, characterIndex + 1);
+    roleElement.textContent =
+      currentRole.substring(0, charIndex + 1);
 
-        characterIndex++;
+    charIndex++;
 
-        if (characterIndex === currentRole.length) {
+    if (charIndex === currentRole.length) {
 
-            deleting = true;
+      deleting = true;
 
-            setTimeout(typingEffect, 1800);
+      setTimeout(typeRole, 1600);
 
-            return;
-        }
-
-    } else {
-
-        roleElement.textContent =
-            currentRole.substring(0, characterIndex - 1);
-
-        characterIndex--;
-
-        if (characterIndex === 0) {
-
-            deleting = false;
-
-            roleIndex++;
-
-            if (roleIndex >= roles.length) {
-                roleIndex = 0;
-            }
-        }
+      return;
     }
 
-    setTimeout(
-        typingEffect,
-        deleting ? 55 : 95
-    );
+  } else {
+
+    roleElement.textContent =
+      currentRole.substring(0, charIndex - 1);
+
+    charIndex--;
+
+    if (charIndex === 0) {
+
+      deleting = false;
+      roleIndex++;
+
+      if (roleIndex >= roles.length) {
+        roleIndex = 0;
+      }
+
+    }
+
+  }
+
+  setTimeout(
+    typeRole,
+    deleting ? 50 : 90
+  );
+
 }
 
-typingEffect();
+if (roleElement) {
+  typeRole();
+}
 
 
-/* ===============================
+/* =========================
    STATS COUNTER
-================================ */
+========================= */
 
-function animateCounter(element, target, suffix = "") {
+function countUp(element, target, decimals = 0) {
 
-    let current = 0;
+  const duration = 1400;
+  const start = performance.now();
 
-    const duration = 1200;
-    const steps = 50;
-    const increment = target / steps;
+  function update(time) {
 
-    const timer = setInterval(() => {
+    const progress = Math.min(
+      (time - start) / duration,
+      1
+    );
 
-        current += increment;
+    const eased =
+      1 - Math.pow(1 - progress, 3);
 
-        if (current >= target) {
+    const value = target * eased;
 
-            current = target;
-            clearInterval(timer);
+    element.textContent =
+      value.toFixed(decimals);
 
-        }
+    if (progress < 1) {
+      requestAnimationFrame(update);
+    }
 
-        element.childNodes[0].textContent =
-            suffix === "CGPA"
-                ? current.toFixed(2) + " "
-                : Math.floor(current) + " ";
+  }
 
-    }, duration / steps);
+  requestAnimationFrame(update);
+
 }
 
 
 const stats = document.querySelectorAll(".stats b");
 
-let statsStarted = false;
+let statsAnimated = false;
 
-const statsObserver = new IntersectionObserver(
-    (entries) => {
+if (stats.length) {
 
-        entries.forEach((entry) => {
+  const statsObserver = new IntersectionObserver(
+    entries => {
 
-            if (entry.isIntersecting && !statsStarted) {
+      if (
+        entries[0].isIntersecting &&
+        !statsAnimated
+      ) {
 
-                statsStarted = true;
+        statsAnimated = true;
 
-                if (stats[0]) {
-                    animateCounter(
-                        stats[0],
-                        8.86,
-                        "CGPA"
-                    );
-                }
+        if (stats[0]) {
+          countUp(stats[0], 8.86, 2);
+        }
 
-                if (stats[1]) {
-                    animateCounter(
-                        stats[1],
-                        2027
-                    );
-                }
+        if (stats[1]) {
+          countUp(stats[1], 2027, 0);
+        }
 
-            }
-
-        });
+        statsObserver.disconnect();
+      }
 
     },
     {
-        threshold: 0.7
+      threshold:0.5
     }
-);
+  );
 
-if (stats.length) {
-    statsObserver.observe(stats[0].parentElement);
+  statsObserver.observe(
+    stats[0].parentElement
+  );
+
 }
 
 
-/* ===============================
-   SMOOTH SCROLL
-================================ */
+/* =========================
+   SCROLL PROGRESS
+========================= */
 
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+const progressBar =
+  document.createElement("div");
 
-    anchor.addEventListener("click", function (e) {
-
-        const target = document.querySelector(
-            this.getAttribute("href")
-        );
-
-        if (target) {
-
-            e.preventDefault();
-
-            target.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-        }
-
-    });
-
-});
-
-
-/* ===============================
-   ACTIVE NAVIGATION
-================================ */
-
-const sections = document.querySelectorAll("section[id]");
-const navLinks = document.querySelectorAll("nav a");
-
-const sectionObserver = new IntersectionObserver(
-    (entries) => {
-
-        entries.forEach((entry) => {
-
-            if (entry.isIntersecting) {
-
-                navLinks.forEach(link => {
-                    link.classList.remove("active");
-                });
-
-                const activeLink =
-                    document.querySelector(
-                        `nav a[href="#${entry.target.id}"]`
-                    );
-
-                if (activeLink) {
-                    activeLink.classList.add("active");
-                }
-
-            }
-
-        });
-
-    },
-    {
-        threshold: 0.45
-    }
-);
-
-sections.forEach(section => {
-    sectionObserver.observe(section);
-});
-
-
-/* ===============================
-   BUTTON RIPPLE EFFECT
-================================ */
-
-document.querySelectorAll(".btn, .social-btn").forEach(button => {
-
-    button.addEventListener("click", function (e) {
-
-        const ripple = document.createElement("span");
-
-        ripple.classList.add("ripple");
-
-        const rect = this.getBoundingClientRect();
-
-        ripple.style.left =
-            (e.clientX - rect.left) + "px";
-
-        ripple.style.top =
-            (e.clientY - rect.top) + "px";
-
-        this.appendChild(ripple);
-
-        setTimeout(() => {
-            ripple.remove();
-        }, 600);
-
-    });
-
-});
-
-
-/* ===============================
-   MOUSE PARALLAX HERO
-================================ */
-
-const visual = document.querySelector(".visual");
-
-document.addEventListener("mousemove", (e) => {
-
-    if (!visual) return;
-
-    const x =
-        (window.innerWidth / 2 - e.clientX) / 40;
-
-    const y =
-        (window.innerHeight / 2 - e.clientY) / 40;
-
-    visual.style.transform =
-        `translate(${x}px, ${y}px)`;
-
-});
-
-
-/* ===============================
-   SCROLL PROGRESS BAR
-================================ */
-
-const progressBar = document.createElement("div");
-
-progressBar.className = "scroll-progress";
+progressBar.className =
+  "scroll-progress";
 
 document.body.appendChild(progressBar);
 
-window.addEventListener("scroll", () => {
+function updateProgress() {
 
-    const scrollTop = window.scrollY;
+  const scrollTop = window.scrollY;
 
-    const documentHeight =
-        document.documentElement.scrollHeight -
-        window.innerHeight;
+  const height =
+    document.documentElement.scrollHeight -
+    window.innerHeight;
 
-    const progress =
-        (scrollTop / documentHeight) * 100;
+  const progress =
+    height > 0
+      ? (scrollTop / height) * 100
+      : 0;
 
-    progressBar.style.width =
-        progress + "%";
+  progressBar.style.width =
+    progress + "%";
+
+}
+
+window.addEventListener(
+  "scroll",
+  updateProgress,
+  { passive:true }
+);
+
+
+/* =========================
+   HEADER SCROLL EFFECT
+========================= */
+
+const header =
+  document.querySelector("header");
+
+window.addEventListener(
+  "scroll",
+  () => {
+
+    if (!header) return;
+
+    if (window.scrollY > 30) {
+      header.classList.add("scrolled");
+    } else {
+      header.classList.remove("scrolled");
+    }
+
+  },
+  { passive:true }
+);
+
+
+/* =========================
+   ACTIVE NAVBAR
+========================= */
+
+const sections =
+  document.querySelectorAll("section[id]");
+
+const navLinks =
+  document.querySelectorAll("nav a");
+
+const activeObserver =
+  new IntersectionObserver(
+    entries => {
+
+      entries.forEach(entry => {
+
+        if (entry.isIntersecting) {
+
+          navLinks.forEach(link => {
+            link.classList.remove("active");
+          });
+
+          const activeLink =
+            document.querySelector(
+              `nav a[href="#${entry.target.id}"]`
+            );
+
+          if (activeLink) {
+            activeLink.classList.add("active");
+          }
+
+        }
+
+      });
+
+    },
+    {
+      threshold:0.45
+    }
+  );
+
+sections.forEach(section => {
+  activeObserver.observe(section);
+});
+
+
+/* =========================
+   BUTTON RIPPLE
+========================= */
+
+document.querySelectorAll(
+  ".btn"
+).forEach(button => {
+
+  button.addEventListener(
+    "click",
+    function(e) {
+
+      const ripple =
+        document.createElement("span");
+
+      ripple.className = "ripple";
+
+      const rect =
+        this.getBoundingClientRect();
+
+      ripple.style.left =
+        (e.clientX - rect.left) + "px";
+
+      ripple.style.top =
+        (e.clientY - rect.top) + "px";
+
+      this.appendChild(ripple);
+
+      setTimeout(() => {
+        ripple.remove();
+      }, 600);
+
+    }
+  );
 
 });
 
 
-/* ===============================
-   PAGE LOAD ANIMATION
-================================ */
+/* =========================
+   SUBTLE MOUSE PARALLAX
+========================= */
 
-window.addEventListener("load", () => {
+const visual =
+  document.querySelector(".visual");
 
-    document.body.classList.add("loaded");
+if (visual) {
+
+  document.addEventListener(
+    "mousemove",
+    e => {
+
+      if (window.innerWidth <= 800) return;
+
+      const x =
+        (window.innerWidth / 2 - e.clientX) / 50;
+
+      const y =
+        (window.innerHeight / 2 - e.clientY) / 50;
+
+      visual.style.transform =
+        `translate(${x}px, ${y}px)`;
+
+    }
+  );
+
+}
+
+
+/* =========================
+   CARD TILT
+========================= */
+
+document.querySelectorAll(
+  ".card, .project"
+).forEach(card => {
+
+  card.addEventListener(
+    "mousemove",
+    e => {
+
+      if (window.innerWidth <= 800) return;
+
+      const rect =
+        card.getBoundingClientRect();
+
+      const x =
+        e.clientX - rect.left;
+
+      const y =
+        e.clientY - rect.top;
+
+      const centerX =
+        rect.width / 2;
+
+      const centerY =
+        rect.height / 2;
+
+      const rotateX =
+        ((y - centerY) / centerY) * -2;
+
+      const rotateY =
+        ((x - centerX) / centerX) * 2;
+
+      card.style.transform =
+        `perspective(800px)
+         rotateX(${rotateX}deg)
+         rotateY(${rotateY}deg)
+         translateY(-5px)`;
+
+    }
+  );
+
+  card.addEventListener(
+    "mouseleave",
+    () => {
+
+      card.style.transform =
+        "";
+
+    }
+  );
 
 });
+
+
+/* =========================
+   PAGE LOAD
+========================= */
+
+window.addEventListener(
+  "load",
+  () => {
+
+    document.body.classList.add(
+      "loaded"
+    );
+
+    updateProgress();
+
+  }
+);
